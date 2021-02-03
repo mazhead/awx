@@ -41,7 +41,9 @@ function PromptProjectDetail({ i18n, resource }) {
           <ListItem>{i18n._(t`Delete on Update`)}</ListItem>
         )}
         {scm_track_submodules && (
-          <ListItem>{i18n._(t`Track submodules latest commit on branch`)}</ListItem>
+          <ListItem>
+            {i18n._(t`Track submodules latest commit on branch`)}
+          </ListItem>
         )}
         {scm_update_on_launch && (
           <ListItem>{i18n._(t`Update Revision on Launch`)}</ListItem>
