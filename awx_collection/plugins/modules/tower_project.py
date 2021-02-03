@@ -79,6 +79,11 @@ options:
         - Remove the repository completely before updating.
       type: bool
       default: 'no'
+    scm_track_submodules:
+      description:
+        - Track submodules latest commit on specified branch.
+      type: bool
+      default: 'no'
     scm_update_on_launch:
       description:
         - Before an update to the local repository before launching a job with this project.
@@ -249,6 +254,7 @@ def main():
         credential=dict(aliases=['scm_credential']),
         scm_clean=dict(type='bool', default=False),
         scm_delete_on_update=dict(type='bool', default=False),
+        scm_track_submodules=dict(type='bool', default=False),
         scm_update_on_launch=dict(type='bool', default=False),
         scm_update_cache_timeout=dict(type='int', default=0),
         allow_override=dict(type='bool', aliases=['scm_allow_override']),
@@ -341,9 +347,17 @@ def main():
     }
 
     for field_name in (
-        'scm_url', 'scm_branch', 'scm_refspec', 'scm_clean', 'scm_delete_on_update',
-        'timeout', 'scm_update_cache_timeout', 'custom_virtualenv',
-        'description', 'allow_override',
+        "scm_url",
+        "scm_branch",
+        "scm_refspec",
+        "scm_clean",
+        "scm_delete_on_update",
+        "scm_track_submodules",
+        "timeout",
+        "scm_update_cache_timeout",
+        "custom_virtualenv",
+        "description",
+        "allow_override",
     ):
         field_val = module.params.get(field_name)
         if field_val is not None:
@@ -377,3 +391,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
