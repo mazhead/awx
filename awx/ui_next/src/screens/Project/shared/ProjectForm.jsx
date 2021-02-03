@@ -84,6 +84,7 @@ function ProjectFormFields({
     credential: '',
     scm_clean: false,
     scm_delete_on_update: false,
+    scm_track_submodules: false,
     scm_update_on_launch: false,
     allow_override: false,
     scm_update_cache_timeout: 0,
@@ -317,6 +318,7 @@ function ProjectForm({ i18n, project, submitError, ...props }) {
     credential: '',
     scm_clean: false,
     scm_delete_on_update: false,
+    scm_track_submodules: false,
     scm_update_on_launch: false,
     allow_override: false,
     scm_update_cache_timeout: 0,
@@ -377,6 +379,7 @@ function ProjectForm({ i18n, project, submitError, ...props }) {
             scm_branch: project.scm_branch || '',
             scm_clean: project.scm_clean || false,
             scm_delete_on_update: project.scm_delete_on_update || false,
+            scm_track_submodules: project.scm_track_submodules || false,
             scm_refspec: project.scm_refspec || '',
             scm_type:
               project.scm_type === ''

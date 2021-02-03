@@ -1309,7 +1309,8 @@ class ProjectOptionsSerializer(BaseSerializer):
 
     class Meta:
         fields = ('*', 'local_path', 'scm_type', 'scm_url', 'scm_branch', 'scm_refspec',
-                  'scm_clean', 'scm_delete_on_update', 'credential', 'timeout', 'scm_revision')
+                  'scm_clean', 'scm_track_submodules', 'scm_delete_on_update', 'credential',
+                  'timeout', 'scm_revision')
 
     def get_related(self, obj):
         res = super(ProjectOptionsSerializer, self).get_related(obj)
@@ -1421,7 +1422,7 @@ class ProjectSerializer(UnifiedJobTemplateSerializer, ProjectOptionsSerializer):
                         )})
 
         if get_field_from_model_or_attrs('scm_type') == '':
-            for fd in ('scm_update_on_launch', 'scm_delete_on_update', 'scm_clean'):
+            for fd in ('scm_update_on_launch', 'scm_delete_on_update', 'scm_track_submodules', 'scm_clean'):
                 if get_field_from_model_or_attrs(fd):
                     raise serializers.ValidationError({fd: _('Update options must be set to false for manual projects.')})
         return super(ProjectSerializer, self).validate(attrs)

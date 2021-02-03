@@ -71,6 +71,11 @@ options:
         - Remove the repository completely before updating.
       type: bool
       default: 'no'
+    scm_track_submodules:
+      description:
+        - Track submodules latest commit on specified branch.
+      type: bool
+      default: 'no'
     scm_update_on_launch:
       description:
         - Before an update to the local repository before launching a job with this project.
@@ -194,6 +199,7 @@ def main():
         credential=dict(aliases=['scm_credential']),
         scm_clean=dict(type='bool', default=False),
         scm_delete_on_update=dict(type='bool', default=False),
+        scm_track_submodules=dict(type='bool', default=False),
         scm_update_on_launch=dict(type='bool', default=False),
         scm_update_cache_timeout=dict(type='int', default=0),
         allow_override=dict(type='bool', aliases=['scm_allow_override']),
@@ -223,6 +229,7 @@ def main():
     credential = module.params.get('credential')
     scm_clean = module.params.get('scm_clean')
     scm_delete_on_update = module.params.get('scm_delete_on_update')
+    scm_track_submodules = module.params.get('scm_track_submodules')
     scm_update_on_launch = module.params.get('scm_update_on_launch')
     scm_update_cache_timeout = module.params.get('scm_update_cache_timeout')
     allow_override = module.params.get('allow_override')
@@ -279,6 +286,7 @@ def main():
         'scm_refspec': scm_refspec,
         'scm_clean': scm_clean,
         'scm_delete_on_update': scm_delete_on_update,
+        'scm_track_submodules': scm_track_submodules,
         'timeout': timeout,
         'organization': org_id,
         'scm_update_on_launch': scm_update_on_launch,
