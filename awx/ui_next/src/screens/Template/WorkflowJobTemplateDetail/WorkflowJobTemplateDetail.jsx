@@ -16,7 +16,7 @@ import { WorkflowJobTemplatesAPI } from '../../../api';
 import AlertModal from '../../../components/AlertModal';
 import { CardBody, CardActionsRow } from '../../../components/Card';
 import ChipGroup from '../../../components/ChipGroup';
-import { VariablesDetail } from '../../../components/CodeMirrorInput';
+import { VariablesDetail } from '../../../components/CodeEditor';
 import DeleteButton from '../../../components/DeleteButton';
 import {
   DetailList,
@@ -24,7 +24,7 @@ import {
   UserDateDetail,
 } from '../../../components/DetailList';
 import ErrorDetail from '../../../components/ErrorDetail';
-import LaunchButton from '../../../components/LaunchButton';
+import { LaunchButton } from '../../../components/LaunchButton';
 import Sparkline from '../../../components/Sparkline';
 import { toTitleCase } from '../../../util/strings';
 import useRequest, { useDismissableError } from '../../../util/useRequest';
@@ -121,6 +121,18 @@ function WorkflowJobTemplateDetail({ template, i18n }) {
                 to={`/organizations/${summary_fields.organization.id}/details`}
               >
                 <Label>{summary_fields.organization.name}</Label>
+              </Link>
+            }
+          />
+        )}
+        {summary_fields?.execution_environment && (
+          <Detail
+            label={i18n._(t`Execution Environment`)}
+            value={
+              <Link
+                to={`/execution_environments/${summary_fields.execution_environment.id}/details`}
+              >
+                {summary_fields.execution_environment.name}
               </Link>
             }
           />

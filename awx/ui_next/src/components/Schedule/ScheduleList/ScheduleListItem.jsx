@@ -4,31 +4,33 @@ import { bool, func } from 'prop-types';
 import { withI18n } from '@lingui/react';
 import { t } from '@lingui/macro';
 import { Link } from 'react-router-dom';
+import { Button, Tooltip } from '@patternfly/react-core';
+import { Tr, Td } from '@patternfly/react-table';
 import {
-  Button,
-  DataListAction as _DataListAction,
-  DataListCheck,
-  DataListItem,
-  DataListItemRow,
-  DataListItemCells,
-  Tooltip,
-} from '@patternfly/react-core';
-import { PencilAltIcon } from '@patternfly/react-icons';
+  PencilAltIcon,
+  ExclamationTriangleIcon as PFExclamationTriangleIcon,
+} from '@patternfly/react-icons';
 import styled from 'styled-components';
-import DataListCell from '../../DataListCell';
 import { DetailList, Detail } from '../../DetailList';
+import { ActionsTd, ActionItem } from '../../PaginatedTable';
 import { ScheduleToggle } from '..';
 import { Schedule } from '../../../types';
 import { formatDateString } from '../../../util/dates';
 
-const DataListAction = styled(_DataListAction)`
-  align-items: center;
-  display: grid;
-  grid-gap: 16px;
-  grid-template-columns: 92px 40px;
+const ExclamationTriangleIcon = styled(PFExclamationTriangleIcon)`
+  color: #c9190b;
+  margin-left: 20px;
 `;
 
-function ScheduleListItem({ i18n, isSelected, onSelect, schedule }) {
+function ScheduleListItem({
+  i18n,
+  rowIndex,
+  isSelected,
+  onSelect,
+  schedule,
+  isMissingInventory,
+  isMissingSurvey,
+}) {
   const labelId = `check-action-${schedule.id}`;
 
   const jobTypeLabels = {
@@ -60,71 +62,71 @@ function ScheduleListItem({ i18n, isSelected, onSelect, schedule }) {
     default:
       break;
   }
+  const isDisabled = Boolean(isMissingInventory || isMissingSurvey);
 
   return (
-    <DataListItem
-      key={schedule.id}
-      aria-labelledby={labelId}
-      id={`${schedule.id}`}
-    >
-      <DataListItemRow>
-        <DataListCheck
-          id={`select-schedule-${schedule.id}`}
-          checked={isSelected}
-          onChange={onSelect}
-          aria-labelledby={labelId}
-        />
-        <DataListItemCells
-          dataListCells={[
-            <DataListCell key="name">
-              <Link to={`${scheduleBaseUrl}/details`}>
-                <b>{schedule.name}</b>
-              </Link>
-            </DataListCell>,
-            <DataListCell key="type">
-              {
-                jobTypeLabels[
-                  schedule.summary_fields.unified_job_template.unified_job_type
-                ]
-              }
-            </DataListCell>,
-            <DataListCell key="next_run">
-              {schedule.next_run && (
-                <DetailList stacked>
-                  <Detail
-                    label={i18n._(t`Next Run`)}
-                    value={formatDateString(schedule.next_run)}
-                  />
-                </DetailList>
-              )}
-            </DataListCell>,
-          ]}
-        />
-        <DataListAction
-          aria-label={i18n._(t`actions`)}
-          aria-labelledby={labelId}
-          id={labelId}
-          key="actions"
-        >
-          <ScheduleToggle schedule={schedule} />
-          {schedule.summary_fields.user_capabilities.edit ? (
-            <Tooltip content={i18n._(t`Edit Schedule`)} position="top">
-              <Button
-                aria-label={i18n._(t`Edit Schedule`)}
-                css="grid-column: 2"
-                variant="plain"
-                component={Link}
-                to={`${scheduleBaseUrl}/edit`}
-              >
-                <PencilAltIcon />
-              </Button>
+    <Tr id={`schedule-row-${schedule.id}`}>
+      <Td
+        select={{
+          rowIndex,
+          isSelected,
+          onSelect,
+          disable: false,
+        }}
+        dataLabel={i18n._(t`Selected`)}
+      />
+      <Td id={labelId} dataLabel={i18n._(t`Name`)}>
+        <Link to={`${scheduleBaseUrl}/details`}>
+          <b>{schedule.name}</b>
+        </Link>
+        {Boolean(isMissingInventory || isMissingSurvey) && (
+          <span>
+            <Tooltip
+              content={[isMissingInventory, isMissingSurvey].map(message => (
+                <div key={message}>{message}</div>
+              ))}
+              position="right"
+            >
+              <ExclamationTriangleIcon />
             </Tooltip>
-          ) : (
-            ''
-          )}
-        </DataListAction>
-      </DataListItemRow>
-    </DataListItem>
+          </span>
+        )}
+      </Td>
+      <Td dataLabel={i18n._(t`Type`)}>
+        {
+          jobTypeLabels[
+            schedule.summary_fields.unified_job_template.unified_job_type
+          ]
+        }
+      </Td>
+      <Td dataLabel={i18n._(t`Next Run`)}>
+        {schedule.next_run && (
+          <DetailList stacked>
+            <Detail
+              label={i18n._(t`Next Run`)}
+              value={formatDateString(schedule.next_run)}
+            />
+          </DetailList>
+        )}
+      </Td>
+      <ActionsTd dataLabel={i18n._(t`Actions`)} gridColumns="auto 40px">
+        <ScheduleToggle schedule={schedule} isDisabled={isDisabled} />
+        <ActionItem
+          visible={schedule.summary_fields.user_capabilities.edit}
+          tooltip={i18n._(t`Edit Schedule`)}
+        >
+          <Button
+            aria-label={i18n._(t`Edit Schedule`)}
+            css="grid-column: 2"
+            variant="plain"
+            component={Link}
+            to={`${scheduleBaseUrl}/edit`}
+          >
+            <PencilAltIcon />
+          </Button>
+        </ActionItem>
+      </ActionsTd>
+    </Tr>
   );
 }
 

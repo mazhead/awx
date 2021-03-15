@@ -5,7 +5,7 @@ import { t } from '@lingui/macro';
 import { func, number, shape } from 'prop-types';
 
 import { Form } from '@patternfly/react-core';
-import { VariablesField } from '../../../components/CodeMirrorInput';
+import { VariablesField } from '../../../components/CodeEditor';
 import FormField, { FormSubmitError } from '../../../components/FormField';
 import FormActionGroup from '../../../components/FormActionGroup';
 import { required } from '../../../util/validators';
@@ -138,7 +138,7 @@ function InventoryForm({
   );
 }
 
-InventoryForm.proptype = {
+InventoryForm.propType = {
   handleSubmit: func.isRequired,
   handleCancel: func.isRequired,
   instanceGroups: shape(),

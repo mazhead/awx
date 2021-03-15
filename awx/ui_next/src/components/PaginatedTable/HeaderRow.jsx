@@ -1,3 +1,4 @@
+import 'styled-components/macro';
 import React from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import { Thead, Tr, Th as PFTh } from '@patternfly/react-table';
@@ -12,7 +13,12 @@ const Th = styled(PFTh)`
   --pf-c-table--cell--Overflow: initial;
 `;
 
-export default function HeaderRow({ qsConfig, isExpandable, children }) {
+export default function HeaderRow({
+  qsConfig,
+  isExpandable,
+  isSelectable,
+  children,
+}) {
   const location = useLocation();
   const history = useHistory();
 
@@ -48,7 +54,7 @@ export default function HeaderRow({ qsConfig, isExpandable, children }) {
     <Thead>
       <Tr>
         {isExpandable && <Th />}
-        <Th />
+        {isSelectable && <Th />}
         {React.Children.map(
           children,
           child =>
@@ -65,6 +71,10 @@ export default function HeaderRow({ qsConfig, isExpandable, children }) {
   );
 }
 
+HeaderRow.defaultProps = {
+  isSelectable: true,
+};
+
 export function HeaderCell({
   sortKey,
   onSort,
@@ -72,6 +82,7 @@ export function HeaderCell({
   columnIndex,
   idPrefix,
   className,
+  alignRight,
   children,
 }) {
   const sort = sortKey
@@ -86,6 +97,7 @@ export function HeaderCell({
       id={sortKey ? `${idPrefix}-${sortKey}` : null}
       className={className}
       sort={sort}
+      css={alignRight ? 'text-align: right' : null}
     >
       {children}
     </Th>

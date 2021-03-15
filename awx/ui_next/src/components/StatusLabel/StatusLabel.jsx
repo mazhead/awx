@@ -1,7 +1,7 @@
 import 'styled-components/macro';
 import React from 'react';
 import { oneOf } from 'prop-types';
-import { Label } from '@patternfly/react-core';
+import { Label, Tooltip } from '@patternfly/react-core';
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
@@ -48,15 +48,27 @@ const icons = {
   canceled: ExclamationTriangleIcon,
 };
 
-export default function StatusLabel({ status }) {
+export default function StatusLabel({ status, tooltipContent = '' }) {
   const label = status.charAt(0).toUpperCase() + status.slice(1);
   const color = colors[status] || 'grey';
   const Icon = icons[status];
 
-  return (
+  const renderLabel = () => (
     <Label variant="outline" color={color} icon={Icon ? <Icon /> : null}>
       {label}
     </Label>
+  );
+
+  return (
+    <>
+      {tooltipContent ? (
+        <Tooltip content={tooltipContent} position="top">
+          {renderLabel()}
+        </Tooltip>
+      ) : (
+        renderLabel()
+      )}
+    </>
   );
 }
 

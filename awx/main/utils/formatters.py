@@ -3,6 +3,7 @@
 
 from copy import copy
 import json
+import json_log_formatter
 import logging
 import traceback
 import socket
@@ -12,6 +13,15 @@ from dateutil.tz import tzutc
 from django.utils.timezone import now
 from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
+
+
+class JobLifeCycleFormatter(json_log_formatter.JSONFormatter):
+    def json_record(self, message: str, extra: dict, record: logging.LogRecord):
+        if 'time' not in extra:
+            extra['time'] = now()
+        if record.exc_info:
+            extra['exc_info'] = self.formatException(record.exc_info)
+        return extra
 
 
 class TimeFormatter(logging.Formatter):
@@ -144,6 +154,9 @@ class LogstashFormatter(LogstashFormatterBase):
 
         if kind == 'job_events' and raw_data.get('python_objects', {}).get('job_event'):
             job_event = raw_data['python_objects']['job_event']
+            guid = job_event.event_data.pop('guid', None)
+            if guid:
+                data_for_log['guid'] = guid
             for field_object in job_event._meta.fields:
 
                 if not field_object.__class__ or not field_object.__class__.__name__:

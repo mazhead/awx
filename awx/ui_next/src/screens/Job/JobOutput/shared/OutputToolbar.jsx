@@ -4,13 +4,17 @@ import { withI18n } from '@lingui/react';
 import { t } from '@lingui/macro';
 import { shape, func } from 'prop-types';
 import {
+  MinusCircleIcon,
   DownloadIcon,
   RocketIcon,
   TrashAltIcon,
 } from '@patternfly/react-icons';
 import { Badge as PFBadge, Button, Tooltip } from '@patternfly/react-core';
 import DeleteButton from '../../../../components/DeleteButton';
-import LaunchButton from '../../../../components/LaunchButton';
+import {
+  LaunchButton,
+  ReLaunchDropDown,
+} from '../../../../components/LaunchButton';
 
 const BadgeGroup = styled.div`
   margin-left: 20px;
@@ -58,7 +62,7 @@ const OUTPUT_NO_COUNT_JOB_TYPES = [
   'inventory_update',
 ];
 
-const OutputToolbar = ({ i18n, job, onDelete }) => {
+const OutputToolbar = ({ i18n, job, jobStatus, onDelete, onCancel }) => {
   const hideCounts = OUTPUT_NO_COUNT_JOB_TYPES.includes(job.type);
 
   const playCount = job?.playbook_counts?.play_count;
@@ -124,18 +128,32 @@ const OutputToolbar = ({ i18n, job, onDelete }) => {
 
       {job.type !== 'system_job' &&
         job.summary_fields.user_capabilities?.start && (
-          <Tooltip content={i18n._(t`Relaunch Job`)}>
-            <LaunchButton resource={job} aria-label={i18n._(t`Relaunch`)}>
-              {({ handleRelaunch }) => (
-                <Button
-                  variant="plain"
-                  onClick={handleRelaunch}
-                  aria-label={i18n._(t`Relaunch`)}
-                >
-                  <RocketIcon />
-                </Button>
-              )}
-            </LaunchButton>
+          <Tooltip
+            content={
+              job.status === 'failed' && job.type === 'job'
+                ? i18n._(t`Relaunch using host parameters`)
+                : i18n._(t`Relaunch Job`)
+            }
+          >
+            {job.status === 'failed' && job.type === 'job' ? (
+              <LaunchButton resource={job}>
+                {({ handleRelaunch }) => (
+                  <ReLaunchDropDown handleRelaunch={handleRelaunch} />
+                )}
+              </LaunchButton>
+            ) : (
+              <LaunchButton resource={job}>
+                {({ handleRelaunch }) => (
+                  <Button
+                    variant="plain"
+                    onClick={handleRelaunch}
+                    aria-label={i18n._(t`Relaunch`)}
+                  >
+                    <RocketIcon />
+                  </Button>
+                )}
+              </LaunchButton>
+            )}
           </Tooltip>
         )}
 
@@ -148,19 +166,34 @@ const OutputToolbar = ({ i18n, job, onDelete }) => {
           </a>
         </Tooltip>
       )}
+      {job.summary_fields.user_capabilities.start &&
+        ['pending', 'waiting', 'running'].includes(jobStatus) && (
+          <Tooltip content={i18n._(t`Cancel Job`)}>
+            <Button
+              variant="plain"
+              aria-label={i18n._(t`Cancel Job`)}
+              onClick={onCancel}
+            >
+              <MinusCircleIcon />
+            </Button>
+          </Tooltip>
+        )}
 
-      {job.summary_fields.user_capabilities.delete && (
-        <Tooltip content={i18n._(t`Delete Job`)}>
-          <DeleteButton
-            name={job.name}
-            modalTitle={i18n._(t`Delete Job`)}
-            onConfirm={onDelete}
-            variant="plain"
-          >
-            <TrashAltIcon />
-          </DeleteButton>
-        </Tooltip>
-      )}
+      {job.summary_fields.user_capabilities.delete &&
+        ['new', 'successful', 'failed', 'error', 'canceled'].includes(
+          jobStatus
+        ) && (
+          <Tooltip content={i18n._(t`Delete Job`)}>
+            <DeleteButton
+              name={job.name}
+              modalTitle={i18n._(t`Delete Job`)}
+              onConfirm={onDelete}
+              variant="plain"
+            >
+              <TrashAltIcon />
+            </DeleteButton>
+          </Tooltip>
+        )}
     </Wrapper>
   );
 };

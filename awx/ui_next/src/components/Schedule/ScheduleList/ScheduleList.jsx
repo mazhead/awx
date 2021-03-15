@@ -6,11 +6,9 @@ import { t } from '@lingui/macro';
 import { SchedulesAPI } from '../../../api';
 import AlertModal from '../../AlertModal';
 import ErrorDetail from '../../ErrorDetail';
+import PaginatedTable, { HeaderRow, HeaderCell } from '../../PaginatedTable';
 import DataListToolbar from '../../DataListToolbar';
-import PaginatedDataList, {
-  ToolbarAddButton,
-  ToolbarDeleteButton,
-} from '../../PaginatedDataList';
+import { ToolbarAddButton, ToolbarDeleteButton } from '../../PaginatedDataList';
 import useRequest, { useDeleteItems } from '../../../util/useRequest';
 import { getQSConfig, parseQueryString } from '../../../util/qs';
 import ScheduleListItem from './ScheduleListItem';
@@ -26,6 +24,9 @@ function ScheduleList({
   loadSchedules,
   loadScheduleOptions,
   hideAddButton,
+  resource,
+  launchConfig,
+  surveyConfig,
 }) {
   const [selected, setSelected] = useState([]);
 
@@ -116,22 +117,74 @@ function ScheduleList({
     actions &&
     Object.prototype.hasOwnProperty.call(actions, 'POST') &&
     !hideAddButton;
+  const isTemplate =
+    resource?.type === 'workflow_job_template' ||
+    resource?.type === 'job_template';
+
+  const missingRequiredInventory = schedule => {
+    if (
+      !launchConfig.inventory_needed_to_start ||
+      schedule?.summary_fields?.inventory?.id
+    ) {
+      return null;
+    }
+    return i18n._(t`This schedule is missing an Inventory`);
+  };
+
+  const hasMissingSurveyValue = schedule => {
+    let missingValues;
+    if (launchConfig.survey_enabled) {
+      surveyConfig.spec.forEach(question => {
+        const hasDefaultValue = Boolean(question.default);
+        if (question.required && !hasDefaultValue) {
+          const extraDataKeys = Object.keys(schedule?.extra_data);
+
+          const hasMatchingKey = extraDataKeys.includes(question.variable);
+          Object.values(schedule?.extra_data).forEach(value => {
+            if (!value || !hasMatchingKey) {
+              missingValues = true;
+            } else {
+              missingValues = false;
+            }
+          });
+          if (!Object.values(schedule.extra_data).length) {
+            missingValues = true;
+          }
+        }
+      });
+    }
+    return (
+      missingValues &&
+      i18n._(t`This schedule is missing required survey values`)
+    );
+  };
 
   return (
     <>
-      <PaginatedDataList
+      <PaginatedTable
         contentError={contentError}
         hasContentLoading={isLoading || isDeleteLoading}
         items={schedules}
         itemCount={itemCount}
         qsConfig={QS_CONFIG}
         onRowClick={handleSelect}
-        renderItem={item => (
+        headerRow={
+          <HeaderRow qsConfig={QS_CONFIG}>
+            <HeaderCell sortKey="name">{i18n._(t`Name`)}</HeaderCell>
+            <HeaderCell>{i18n._(t`Type`)}</HeaderCell>
+            <HeaderCell sortKey="next_run">{i18n._(t`Next Run`)}</HeaderCell>
+            <HeaderCell>{i18n._(t`Actions`)}</HeaderCell>
+          </HeaderRow>
+        }
+        renderRow={(item, index) => (
           <ScheduleListItem
             isSelected={selected.some(row => row.id === item.id)}
             key={item.id}
             onSelect={() => handleSelect(item)}
             schedule={item}
+            rowIndex={index}
+            isMissingInventory={isTemplate && missingRequiredInventory(item)}
+            isMissingSurvey={isTemplate && hasMissingSurveyValue(item)}
           />
         )}
         toolbarSearchColumns={[
@@ -151,16 +204,6 @@ function ScheduleList({
           {
             name: i18n._(t`Modified By (Username)`),
             key: 'modified_by__username__icontains',
-          },
-        ]}
-        toolbarSortColumns={[
-          {
-            name: i18n._(t`Name`),
-            key: 'name',
-          },
-          {
-            name: i18n._(t`Next Run`),
-            key: 'next_run',
           },
         ]}
         toolbarSearchableKeys={searchableKeys}

@@ -259,7 +259,7 @@ export const User = shape({
   username: string,
   first_name: string,
   last_name: string,
-  email: string.isRequired,
+  email: string,
   is_superuser: bool,
   is_system_auditor: bool,
   ldap_dn: string,
@@ -407,4 +407,15 @@ export const WorkflowApproval = shape({
   can_approve_or_deny: bool,
   approval_expiration: string,
   timed_out: bool,
+});
+
+export const ExecutionEnvironment = shape({
+  id: number.isRequired,
+  organization: number,
+  credential: number,
+  image: string.isRequired,
+  url: string,
+  summary_fields: shape({}),
+  description: string,
+  pull: string,
 });

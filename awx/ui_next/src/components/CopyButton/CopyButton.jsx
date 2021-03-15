@@ -3,7 +3,7 @@ import { withI18n } from '@lingui/react';
 import { t } from '@lingui/macro';
 import PropTypes from 'prop-types';
 
-import { Button, Tooltip } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
 import { CopyIcon } from '@patternfly/react-icons';
 import useRequest, { useDismissableError } from '../../util/useRequest';
 import AlertModal from '../AlertModal';
@@ -15,8 +15,9 @@ function CopyButton({
   isDisabled,
   onCopyStart,
   onCopyFinish,
-  helperText,
+  errorMessage,
   i18n,
+  ouiaId,
 }) {
   const { isLoading, error: copyError, request: copyItemToAPI } = useRequest(
     copyItem
@@ -33,17 +34,16 @@ function CopyButton({
 
   return (
     <>
-      <Tooltip content={helperText.tooltip} position="top">
-        <Button
-          id={id}
-          isDisabled={isLoading || isDisabled}
-          aria-label={i18n._(t`Copy`)}
-          variant="plain"
-          onClick={copyItemToAPI}
-        >
-          <CopyIcon />
-        </Button>
-      </Tooltip>
+      <Button
+        id={id}
+        ouiaId={ouiaId}
+        isDisabled={isLoading || isDisabled}
+        aria-label={i18n._(t`Copy`)}
+        variant="plain"
+        onClick={copyItemToAPI}
+      >
+        <CopyIcon />
+      </Button>
       <AlertModal
         aria-label={i18n._(t`Copy Error`)}
         isOpen={error}
@@ -51,7 +51,7 @@ function CopyButton({
         title={i18n._(t`Error!`)}
         onClose={dismissError}
       >
-        {helperText.errorMessage}
+        {errorMessage}
         <ErrorDetail error={error} />
       </AlertModal>
     </>
@@ -62,15 +62,14 @@ CopyButton.propTypes = {
   copyItem: PropTypes.func.isRequired,
   onCopyStart: PropTypes.func.isRequired,
   onCopyFinish: PropTypes.func.isRequired,
-  helperText: PropTypes.shape({
-    tooltip: PropTypes.string.isRequired,
-    errorMessage: PropTypes.string.isRequired,
-  }).isRequired,
+  errorMessage: PropTypes.string.isRequired,
   isDisabled: PropTypes.bool,
+  ouiaId: PropTypes.string,
 };
 
 CopyButton.defaultProps = {
   isDisabled: false,
+  ouiaId: null,
 };
 
 export default withI18n()(CopyButton);
