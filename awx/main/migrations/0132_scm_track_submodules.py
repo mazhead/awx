@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0123_drop_hg_support'),
+        ('main', '0131_undo_org_polymorphic_ee'),
     ]
 
     operations = [
