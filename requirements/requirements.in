@@ -53,4 +53,4 @@ twisted[tls]>=20.3.0  # CVE-2020-10108, CVE-2020-10109
 uWSGI
 uwsgitop
 pip==19.3.1  # see UPGRADE BLOCKERs
-setuptools==41.6.0  # see UPGRADE BLOCKERs
+setuptools==54.2.0  # see UPGRADE BLOCKERs
